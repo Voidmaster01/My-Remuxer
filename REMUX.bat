@@ -1,16 +1,3 @@
-:: If you are using this file to automate your recordings you will need to change some things
-:: First change the input ["V:\Before Remux\01.mkv"] to be where you record your OBS VODs to 
-:: I recommend changing the setting in obs to write files to only one name and have that in the folder with this batch file
-
-:: For File HUB users *Note hub users use hubs to temporarily store their files while remuxing them
-:: change ["M:\1 REMUX HUB\%newname%.mp4"]to be ["x:\YourFolder\%newname%.mp4"]
-:: where x=drive extension and \YourFolder\=the subfolder of your choice
-
-:: For Non-HUB users
-:: Add {set /p path=Enter the output file path:} after line __ 
-:: Change ["M:\1 REMUX HUB\%newname%.mp4"] to {"%path%\%newname%.mp4"}
-
-
 @Echo off
 set /p newname=Enter new file name:
 ffmpeg -i "V:\Before Remux\01.mkv" & :: this command adds the input for the remux
@@ -22,6 +9,7 @@ start "" "C:\Program Files\Adobe\Adobe Premiere Pro 2024\Adobe Premiere Pro.exe"
 TIMEOUT /T 60 goto :choice
 
 :choice &:: This asks user to check using premiere pro or other editing sofware for corruption/file failure
+start ""
 set /P c=Does the final file work as intended[Y/N]?
 if /I "%c%" == "N" goto :Redo &:: this will send them to Redo the remux
 if /I "%c%" == "Y" goto :Delete &:: if no failure/corruption is found and user confirms this will send them to :Delete
