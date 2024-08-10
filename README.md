@@ -8,9 +8,9 @@ I recommend changing the setting in obs to write files to only one name and have
 
 ## For File HUB users
 *Note hub users use hubs to temporarily store their files while remuxing them
-change ["M:\1 REMUX HUB\%newname%.mp4"]to be ["x:\YourFolder\%newname%.mp4"]
-where x=drive extension and \YourFolder\=the subfolder of your choice
+- change ["M:\1 REMUX HUB\%newname%.mp4"]to be ["x:\YourFolder\%newname%.mp4"]
+- where x=drive extension and \YourFolder\=the subfolder of your choice
 
 ## For Non-HUB users
-Add {set /p path=Enter the output file path:} after line __ 
-Change ["M:\1 REMUX HUB\%newname%.mp4"] to {"%path%\%newname%.mp4"}
+- Add {set /p path=Enter the output file path:} after line __ 
+- Change ["M:\1 REMUX HUB\%newname%.mp4"] to {"%path%\%newname%.mp4"}
