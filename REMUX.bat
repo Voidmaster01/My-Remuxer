@@ -1,55 +1,67 @@
-:: If you are using this file to automate your recordings you will need to change some things
-:: First change the input ["V:\Before Remux\01.mkv"] to be where you record your OBS VODs to 
-:: I recommend changing the setting in obs to write files to only one name and have that in the folder with this batch file
-
-:: For File HUB users *Note hub users use hubs to temporarily store their files while remuxing them
-:: change ["M:\1 REMUX HUB\%newname%.mp4"]to be ["x:\YourFolder\%newname%.mp4"]
-:: where x=drive extension and \YourFolder\=the subfolder of your choice
-
-:: For Non-HUB users
-:: Add {set /p path=Enter the output file path:} after line __ 
-:: Change ["M:\1 REMUX HUB\%newname%.mp4"] to {"%path%\%newname%.mp4"}
-
-
 @Echo off
-set /p newname=Enter new file name:
-ffmpeg -i "V:\Before Remux\01.mkv"  -c copy -map 0 "M:\1 REMUX HUB\%newname%.mp4" goto :Premeiere
+:: I recommend following this video on how to install FFmpeg in order to use this file https://www.youtube.com/watch?v=EyIIvctDhYc&t=201s
+set /p IPath=Enter the Path of the file you wish to remux from (use "Copy as path" option and keep the Quotations): 
+set /p M=what is the first letter of the Directory of your new file?(do not include the semicolon(:))
+set /p NewPath=Enter the Path + Extension of your temporary storage (Please do not use Quotations or directory letter):
+set /P f=have you accidentally closed the process?[y/N] Please note this will skip the remuxing process and take you through the rest of the code:
+if /I "%f%" == "N" goto :FFmpeg
+if /I "%f%" == "Y" goto :Premiere
 
-:Premiere &:: this command line starts premiere pro and waits 1 minute to allow it to start
-start "" "C:\Program Files\Adobe\Adobe Premiere Pro 2024\Adobe Premiere Pro.exe" goto :choice
+:FFmpeg
+ffmpeg -i "%IPath%"  -c copy -map 0 "%M%:\%NewPath%"
+goto :Premiere &:: This command takes inputs from the previous lines and sets up to remux files
 
-:choice &:: This asks user to check using premiere pro or other editing sofware for corruption/file failure
+:Premiere &:: this command line starts the preferred editor and waits 30 seconds to allow it to start
+set /p EDITOR=Enter the .exe file for your prefered editor should look like: 'Adobe Premiere Pro.exe':
+echo Starting Process. . . Please Wait
+Start "" "%EDITOR%"
+pause
+:: The next couple of lines test for the editor to see if it opened or not
+TASKLIST | FINDSTR /I "%EDITOR%"
+if %ERRORLEVEL% == 1 (
+        echo could not start process 
+        goto :FailEditor
+) Else (
+        echo Process completed, next question
+        goto :choice
+)
+
+
+:FailEditor &:: this will tell the user to open the editor if the above process does not work
+set /P g= Please start Editor manually!!! then type Y:
+if /I "%g%" == "Y" goto :choice
+
+:choice &:: This asks user to check using the preferred editor for corruption/file failure
 set /P c=Does the final file work as intended[Y/N]?
 if /I "%c%" == "N" goto :Redo &:: this will send them to Redo the remux
 if /I "%c%" == "Y" goto :Foldercreation &:: if no failure/corruption is found and user confirms this will send them to :Delete
 
 :Redo &:: This command line re-remuxes the original video then asks the question again
-ffmpeg -i "V:\Before Remux\01.mkv" -c copy -map 0 "M:\1 REMUX HUB\%newname%%%.mp4"
+ffmpeg -i "%IPath%"  -c copy -map 0 "%M%:\%NewPath%"
 goto :choice2
 
 :Foldercreation &:: This section asks the user which folder it should be stored in
 set /P Folder=Which folder should this go in?
-echo Checking if exists directory "M:\%Folder%" ...
-cd "M:\%Folder%"
-if !ERRORLEVEL! GTR 0 (
-   echo Directory doesn't exist, creating...
-   md "M:\%Folder%"
-   goto :Foldercreation
-) else (
+echo Checking if exists directory "%M%:\%Folder%" ...
+if exist "%M%:\%Folder%" (
    echo Directory already exists.
+   goto :Move
+) else (
+   echo Directory doesn't exist, creating...
+   md "%M%:\%Folder%"
+   goto :Foldercreation
 )
-goto :Move
 
-:Move 
-move "M:\1 REMUX HUB\%newname%.mp4" "M:\%Folder%\"
+:Move &:: Moves File from temporary storage to final destination ready for editing
+move "%M%:\%NewPath%" "%M%:\%Folder%\"
 set /P c3=Did the file go to the correct folder?[Y/N]
 if /I "%c3%" == "Y" goto :Delete
 if /I "%c3%" == "N" goto :Foldercreation
 
 :Delete &:: This area deletes the original file to allow obs to write the next one without issue
-Del "V:\Before Remux\01.mkv"
+Del "%IPath%"
 echo This video is now remuxed please edit it 
-echo OBS is primed for next stream!!
+echo your streaming software is primed for next stream!!
 pause
 exit
 
@@ -62,3 +74,4 @@ if /I "%c2%" == "Y" goto :Foldercreation
 @Echo check for corruption
 pause
 exit
+
