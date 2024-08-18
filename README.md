@@ -14,3 +14,9 @@ I recommend changing the setting in obs to write files to only one name and have
 ## For Non-HUB users
 - Add {set /p path=Enter the output file path:} after line __ 
 - Change ["M:\1 REMUX HUB\%newname%.mp4"] to {"%path%\%newname%.mp4"}
+
+## File Moving
+- I have added the feature to automatically move your file to a new one and even create a directory if the folder does not exist
+- after you test the mp4 file it will ask where the final file will go
+- if the directory exists the file will go into there
+- if the directory does not exist the code will automatically make the folder then add the file into the folder
